@@ -196,7 +196,7 @@ Dobrze:
 
 ```php
 public function store(PostRequest $request)
-{    
+{
     ...
 }
 
@@ -228,7 +228,7 @@ public function store(Request $request)
         $request->file('image')->move(public_path('images') . 'temp');
     }
     
-    ....
+    ...
 }
 ```
 
@@ -239,7 +239,7 @@ public function store(Request $request)
 {
     $this->articleService->handleUploadedImage($request->file('image'));
 
-    ....
+    ...
 }
 
 class ArticleService
@@ -336,6 +336,7 @@ $article = new Article;
 $article->title = $request->title;
 $article->content = $request->content;
 $article->verified = $request->verified;
+
 // Dodaj kategorię do artykułu
 $article->category_id = $category->id;
 $article->save();
@@ -353,7 +354,7 @@ $category->article()->create($request->validated());
 
 Źle (dla 100 użytkowników zostanie wykonanych 101 zapytań do bazy danych):
 
-```php
+```blade
 @foreach (User::all() as $user)
     {{ $user->profile->name }}
 @endforeach
@@ -363,8 +364,6 @@ Dobrze (dla 100 użytkowników zostaną wykonane tylko 2 zapytania do bazy danyc
 
 ```php
 $users = User::with('profile')->get();
-
-...
 
 @foreach ($users as $user)
     {{ $user->profile->name }}
@@ -400,7 +399,7 @@ if ($this->hasJoins())
 
 Źle:
 
-```php
+```javascript
 let article = `{{ json_encode($article) }}`;
 ```
 
@@ -460,10 +459,10 @@ Nie każ swojemu klientowi za to płacić.
 Zadanie | Standardowe narzędzia | Narzędzia innych podmiotów
 ------------ | ------------- | -------------
 Autoryzacja | Laravel Policies | Entrust, Sentinel i inne paczki
-Kompilowanie zasobów | Laravel Mix | Grunt, Gulp oraz inne
+Kompilowanie zasobów | Laravel Mix, Vite | Grunt, Gulp oraz inne
 Środowisko pracy | Laravel Sail, Homestead | Docker
 Wdrażanie | Laravel Forge | Deployer i inne rozwiązania
-Testy jednostkowe | PHPUnit, Mockery | Phpspec
+Testy jednostkowe | PHPUnit, Mockery | Phpspec, Pest
 Testy przeglądarkowe | Laravel Dusk | Codeception
 Baza danych | Eloquent | SQL, Doctrine
 Szablony widoków | Blade | Twig
@@ -483,9 +482,9 @@ Baza danych | MySQL, PostgreSQL, SQLite, SQL Server | MongoDB
 
 ### **Postępuj zgodnie z konwencją nazewniczą Laravel-a**
 
- Stosuj [standardy PSR](http://www.php-fig.org/psr/psr-2/).
- 
- Przestrzegaj również konwencji nazewniczych przyjętych przez społeczność Laravel-a
+Stosuj [standardy PSR](https://www.php-fig.org/psr/psr-12/).
+
+Przestrzegaj również konwencji nazewniczych przyjętych przez społeczność Laravel-a
 
 Zagadnienie | Konwencja | Dobrze | Źle
 ------------ | ------------- | ------------- | -------------
@@ -513,6 +512,10 @@ Widok | kebab-case | show-filtered.blade.php | ~~showFiltered.blade.php, show_fi
 Pliki konfiguracyjne | snake_case | google_calendar.php | ~~googleCalendar.php, google-calendar.php~~
 Kontrakt (interfejs) | przymiotnik lub rzeczownik | AuthenticationInterface | ~~Authenticatable, IAuthentication~~
 Cecha (trait) | przymiotnik | Notifiable | ~~NotificationTrait~~
+Trait [(PSR)](https://www.php-fig.org/bylaws/psr-naming-conventions/) | adjective | NotifiableTrait | ~~Notification~~
+Enum | singular | UserType | ~~UserTypes~~, ~~UserTypeEnum~~
+FormRequest | singular | UpdateUserRequest | ~~UpdateUserFormRequest~~, ~~UserFormRequest~~, ~~UserRequest~~
+Seeder | singular | UserSeeder | ~~UsersSeeder~~
 
 [🔝 Wróć do spisu treści](#spis-treści)
 
@@ -575,7 +578,7 @@ public function __construct(User $user)
     $this->user = $user;
 }
 
-....
+...
 
 $this->user->create($request->validated());
 ```
@@ -617,7 +620,10 @@ Dobrze:
 
 ```php
 // Model
-protected $dates = ['ordered_at', 'created_at', 'updated_at'];
+protected $casts = [
+    'ordered_at' => 'datetime',
+];
+
 public function getSomeDateAttribute($date)
 {
     return $date->format('m-d');
@@ -632,7 +638,7 @@ public function getSomeDateAttribute($date)
 
 ### **Inne dobre praktyki**
 
-NNigdy nie umieszczaj żadnej logiki w plikach ścieżek URL (routes/*.php).
+Nigdy nie umieszczaj żadnej logiki w plikach ścieżek URL (routes/*.php).
 
 Zminimalizuj użycie natywnego kodu PHP w szablonach Blade.
 

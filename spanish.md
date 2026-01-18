@@ -95,7 +95,7 @@ Las clases y los métodos deben tener un solo propósito.
 Malo:
 
 ```php
-public function getFullNameAttribute()
+public function getFullNameAttribute(): string
 {
     if (auth()->user() && auth()->user()->hasRole('client') && auth()->user()->isVerified()) {
         return 'Mr. ' . $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
@@ -108,22 +108,22 @@ public function getFullNameAttribute()
 Bueno:
 
 ```php
-public function getFullNameAttribute()
+public function getFullNameAttribute(): string
 {
     return $this->isVerifiedClient() ? $this->getFullNameLong() : $this->getFullNameShort();
 }
 
-public function isVerifiedClient()
+public function isVerifiedClient(): bool
 {
     return auth()->user() && auth()->user()->hasRole('client') && auth()->user()->isVerified();
 }
 
-public function getFullNameLong()
+public function getFullNameLong(): string
 {
     return 'Mr. ' . $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
 }
 
-public function getFullNameShort()
+public function getFullNameShort(): string
 {
     return $this->first_name[0] . '. ' . $this->last_name;
 }
@@ -188,7 +188,7 @@ public function store(Request $request)
         'publish_at' => 'nullable|date',
     ]);
 
-    ....
+    ...
 }
 ```
 
@@ -196,8 +196,8 @@ Bueno:
 
 ```php
 public function store(PostRequest $request)
-{    
-    ....
+{
+    ...
 }
 
 class PostRequest extends Request
@@ -228,7 +228,7 @@ public function store(Request $request)
         $request->file('image')->move(public_path('images') . 'temp');
     }
     
-    ....
+    ...
 }
 ```
 
@@ -239,7 +239,7 @@ public function store(Request $request)
 {
     $this->articleService->handleUploadedImage($request->file('image'));
 
-    ....
+    ...
 }
 
 class ArticleService
@@ -336,6 +336,7 @@ $article = new Article;
 $article->title = $request->title;
 $article->content = $request->content;
 $article->verified = $request->verified;
+
 // Add category to article
 $article->category_id = $category->id;
 $article->save();
@@ -353,7 +354,7 @@ $category->article()->create($request->validated());
 
 Malo (Para 100 usuarios, se ejecutarán 101 consultas):
 
-```php
+```blade
 @foreach (User::all() as $user)
     {{ $user->profile->name }}
 @endforeach
@@ -363,8 +364,6 @@ Bueno (Para 100 usuarios, se ejecutarán 2 consultas):
 
 ```php
 $users = User::with('profile')->get();
-
-...
 
 @foreach ($users as $user)
     {{ $user->profile->name }}
@@ -400,7 +399,7 @@ if ($this->hasJoins())
 
 Malo:
 
-```php
+```javascript
 let article = `{{ json_encode($article) }}`;
 ```
 
@@ -457,10 +456,10 @@ Prioriza la utilización de funcionalidades integradas y los paquetes de la comu
 Tarea | Herramienta estándar | Herramientas de terceras personas
 ------------ | ------------- | -------------
 Autorización | Policies | Entrust, Sentinel y otros paquetes
-Compilar assets | Laravel Mix | Grunt, Gulp, paquetes de terceros
+Compilar assets | Laravel Mix, Vite | Grunt, Gulp, paquetes de terceros
 Entorno de desarrollo | Laravel Sail, Homestead | Docker
 Deployment | Laravel Forge | Deployer y otras soluciones
-Unit testing | PHPUnit, Mockery | Phpspec
+Unit testing | PHPUnit, Mockery | Phpspec, Pest
 Testeo en el navegador | Laravel Dusk | Codeception
 Base de datos | Eloquent | SQL, Doctrine
 Plantillas | Blade | Twig
@@ -480,9 +479,9 @@ Base de datos | MySQL, PostgreSQL, SQLite, SQL Server | MongoDB
 
 ### **Sigue la convención de Laravel para los nombres**
 
- Sigue los [estándares PSR](http://www.php-fig.org/psr/psr-2/).
- 
- También, sigue la convención aceptada por la comunidad:
+Sigue los [estándares PSR](https://www.php-fig.org/psr/psr-12/).
+
+También, sigue la convención aceptada por la comunidad:
 
 Qué | Cómo | Bueno | Malo
 ------------ | ------------- | ------------- | -------------
@@ -510,6 +509,10 @@ Vistas | kebab-case | show-filtered.blade.php | ~~showFiltered.blade.php, show_f
 Configuración | snake_case | google_calendar.php | ~~googleCalendar.php, google-calendar.php~~
 Contrato (interface) | adjetivo o sustantivo | AuthenticationInterface | ~~Authenticatable, IAuthentication~~
 Trait | adjetivo | Notifiable | ~~NotificationTrait~~
+Trait [(PSR)](https://www.php-fig.org/bylaws/psr-naming-conventions/) | adjective | NotifiableTrait | ~~Notification~~
+Enum | singular | UserType | ~~UserTypes~~, ~~UserTypeEnum~~
+FormRequest | singular | UpdateUserRequest | ~~UpdateUserFormRequest~~, ~~UserFormRequest~~, ~~UserRequest~~
+Seeder | singular | UserSeeder | ~~UsersSeeder~~
 
 [🔝 Volver al índice](#índice-de-contenido)
 
@@ -571,7 +574,7 @@ public function __construct(User $user)
     $this->user = $user;
 }
 
-....
+...
 
 $this->user->create($request->validated());
 ```
@@ -613,7 +616,10 @@ Bueno:
 
 ```php
 // Modelo
-protected $dates = ['ordered_at', 'created_at', 'updated_at'];
+protected $casts = [
+    'ordered_at' => 'datetime',
+];
+
 public function getSomeDateAttribute($date)
 {
     return $date->format('m-d');
